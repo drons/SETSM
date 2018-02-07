@@ -9,15 +9,25 @@ matrix:
     - env:
         - BUILD_NAME=NO_MPI
         - MAKEFILE_EXT=gcc
+      script:
+        - make -f Makefile.${MAKEFILE_EXT} -j2
+
     - env:
         - BUILD_NAME=MPI
         - MAKEFILE_EXT=mpi.gcc
+      script:
+        - make -f Makefile.${MAKEFILE_EXT} -j2
+    - env:
+        - BUILD_NAME=CPPCHECK
+      script:
+        - cppcheck --relative-paths --quiet --template=gcc --enable=warning,performance ./
 addons:
   apt:
     packages:
     - g++
     - libtiff5-dev
     - libopenmpi-dev
+    - cppcheck
 
 before_script:
   - gcc --version

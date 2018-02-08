@@ -4438,8 +4438,8 @@ bool GetsubareaImage(TransParam transparam, uint8 NumofIAparam, double **RPCs, d
 
 uint16 *Readtiff(char *filename, CSize *Imagesize, int *cols, int *rows, CSize *data_size, bool check_checktiff)
 {
-	uint16 *out;
-	FILE *bin;
+	uint16 *out = NULL;
+	FILE *bin = NULL;
 	int check_ftype = 1; // 1 = tif, 2 = bin 
 	TIFF *tif = NULL;
 	char *ext;
@@ -4821,7 +4821,7 @@ D2DPOINT *SetDEMGrid(double *Boundary, double Grid_x, double Grid_y, CSize *Size
 
 void SetHeightWithSeedDEM(TransParam param, UGRID *Grid, double *Boundary, CSize Grid_size, double Grid_set, char *GIMP_path, double *minmaxHeight, double seedDEM_sigma, int IsRA,char* metafilename)
 {
-	double minX, maxX, minY,maxY,grid_size,a_minX,a_maxX,a_minY,a_maxY;
+	double minX = 0, maxX, minY,maxY = 0,grid_size = 0,a_minX,a_maxX,a_minY,a_maxY;
 	CSize seeddem_size;
 	char* hdr_path;
 	FILE *bin;
@@ -4830,6 +4830,10 @@ void SetHeightWithSeedDEM(TransParam param, UGRID *Grid, double *Boundary, CSize
 	
 	int check_ftype = 1; // 1 = tif, 2 = raw
 	char *ext;
+
+	seeddem_size.width = 0;
+	seeddem_size.height = 0;
+
 	ext = strrchr(GIMP_path,'.');
 	
 	if (!strcmp("tif",ext+1) || !strcmp("TIF",ext+1))
@@ -16764,8 +16768,8 @@ D2DPOINT* GetObjectToImageRPC_ortho(double **_rpc, uint8 _numofparam, double *_i
 
 uint16 *Readtiff_ortho(char *filename, CSize Imagesize, int *cols, int *rows, CSize *data_size)
 {
-	uint16 *out;
-	FILE *bin;
+	uint16 *out = NULL;
+	FILE *bin = NULL;
 	int check_ftype = 1; // 1 = tif, 2 = bin
 	TIFF *tif = NULL;
 	char *ext;

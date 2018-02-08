@@ -8,6 +8,7 @@
 
 CC=gcc
 CFLAGS=-std=c99 -O3 -fopenmp -ffast-math -march=native
+WARNFLAGS=-Wall -Wextra -Wpointer-arith -Winit-self -Wunreachable-code -Wsequence-point -Wuninitialized
 
 INCS=$(TIFFINC)
 LDFLAGS=$(TIFFLIB)
@@ -16,7 +17,7 @@ setsm : setsm_code.o
 	$(CC) $(CFLAGS) -o setsm setsm_code.o $(LDFLAGS) -lm -ltiff
 
 setsm_code.o : Typedefine.h setsm_code.h setsm_code.c
-	$(CC) $(CFLAGS) $(INCS) -c setsm_code.c
+	$(CC) $(CFLAGS) $(WARNFLAGS) $(INCS) -c setsm_code.c
 
 .PHONY: clean
 

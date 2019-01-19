@@ -20328,7 +20328,7 @@ D2DPOINT GetObjectToImageRPC_single_ortho(double **_rpc, uint8 _numofparam, doub
     
     
     double L, P, H, Line, Samp, deltaP, deltaR;
-    double *Coeff;
+    double Coeff[4];
     deltaP = 0.0;
     deltaR = 0.0;
     
@@ -20356,8 +20356,6 @@ D2DPOINT GetObjectToImageRPC_single_ortho(double **_rpc, uint8 _numofparam, doub
         P       = (_GP.m_Y - _rpc[0][3])/_rpc[1][3];
     }
     
-    Coeff   = (double*)malloc(sizeof(double)*4);
-
     for(j=0;j<4;j++)
     {
         Coeff[j]    = _rpc[j+2][0]*1.0          + _rpc[j+2][1]*L            + _rpc[j+2][2]*P
@@ -20386,7 +20384,6 @@ D2DPOINT GetObjectToImageRPC_single_ortho(double **_rpc, uint8 _numofparam, doub
     
     IP.m_Y      = deltaP + Line;
     IP.m_X      = deltaR + Samp;
-    free(Coeff);
     
     return IP;
 }

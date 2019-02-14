@@ -37,8 +37,30 @@
 #include "math.h"
 #include <omp.h>
 #include <time.h>
+#ifdef _WIN32
+#include <direct.h>
+char *dirname(char *path)
+{
+    return path;
+}
+int direxist(char *path)
+{
+    return 1;
+}
+#else //_WIN32
 #include <dirent.h>
 #include <libgen.h>
+int direxist(char *path)
+{
+    DIR* d = opendir(path);
+    if(d == NULL)
+    {
+        return 0;
+    }
+    closedir(d);
+    return 1;
+}
+#endif //_WIN32
 #include <sys/stat.h>
 #include "setsmgeo.h"
 #ifdef BUILDMPI
@@ -4863,7 +4885,7 @@ int Maketmpfolders(ProInfo *info)
     {
         int status;
         status = mkdir(info->save_filepath,0777);
-        if (opendir(info->save_filepath) == NULL)
+        if (!direxist(info->save_filepath))
         {
             if (status == -1)
             {
@@ -19878,7 +19900,7 @@ void orthogeneration(TransParam _param, ARGINFO args, char *ImageFilename, char 
                 if(impyramid_step > 0)
                     impyramid_step = 1;
                 
-                CSize data_size[impyramid_step+1];
+                CSize* data_size = (CSize*)calloc(impyramid_step+1, sizeof(CSize));
                 D2DPOINT startpos;
                 char t_str[500];
                 
@@ -19892,7 +19914,7 @@ void orthogeneration(TransParam _param, ARGINFO args, char *ImageFilename, char 
                     pyimg = Preprocessing_ortho(ori_impyramid_step,data_size,subimage);
                 
                 Image_size  = data_size[impyramid_step];
-                
+                free(data_size);
                 //printf("Image_size %d\t%d\n",Image_size.width,Image_size.height);
                 
                 int col_size    = (int)((X_size[1] - X_size[0])/Ortho_resolution + 0.5);

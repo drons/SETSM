@@ -90,12 +90,18 @@ CSize ReadGeotiff_info(char *filename, double *minX, double *maxY, double *grid_
         uint16 count = 0;
         double *data = 0;
 
-        TIFFGetField(tif, TIFFTAG_GEOTIEPOINTS, &count, &data);
-        if (minX != NULL) *minX = data[3];
-        if (maxY != NULL) *maxY = data[4];
+        if(minX != NULL && maxY != NULL)
+        {
+            TIFFGetField(tif, TIFFTAG_GEOTIEPOINTS, &count, &data);
+            if (data != NULL) *minX = data[3];
+            if (data != NULL) *maxY = data[4];
+        }
 
-        TIFFGetField(tif, TIFFTAG_GEOPIXELSCALE, &count, &data);
-        if (grid_size != NULL) *grid_size = data[0];
+        if(grid_size != NULL)
+        {
+            TIFFGetField(tif, TIFFTAG_GEOPIXELSCALE, &count, &data);
+            if (data != NULL) *grid_size = data[0];
+        }
 
         size_t value = 0;
         TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &value);

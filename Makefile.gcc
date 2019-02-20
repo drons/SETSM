@@ -9,7 +9,7 @@
 # If libgeotiff is installed in a nonstandard location you must edit
 # GEOTIFFPATH and uncomment the following three lines.
 #GEOTIFFPATH=$(HOME)/libgeotiff
-#GEOTIFFINC=-I$(GEOTIFFPATH)/include
+GEOTIFFINC=-I/usr/include/geotiff
 #GEOTIFFLIB=-L$(GEOTIFFPATH)/lib
 
 CC=gcc

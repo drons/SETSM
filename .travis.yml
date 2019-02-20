@@ -1,5 +1,5 @@
 sudo: required
-dist: trusty
+dist: xenial
 
 language:
   - cpp
@@ -8,19 +8,20 @@ matrix:
   include:
     - env:
         - BUILD_NAME=NO_MPI
-        - MAKEFILE_EXT=gcc
+        - TARGET=setsm
     - env:
         - BUILD_NAME=MPI
-        - MAKEFILE_EXT=mpi.gcc
+        - TARGET=setsm_mpi
 addons:
   apt:
     packages:
     - g++
     - libtiff5-dev
+    - libgeotiff-dev
     - libopenmpi-dev
 
 before_script:
   - gcc --version
 script:
-  - make -f Makefile.${MAKEFILE_EXT} -j2
+  - make -f Makefile.gcc -j2 ${TARGET}
 

@@ -1373,7 +1373,7 @@ char* SetOutpathName(char *_path)
         int start = dir_size+1;
         int end = full_size;
         int lenth = end  - start+1;
-        t_name = (char*)(malloc(sizeof(char)*(lenth+1)));
+        t_name = (char*)calloc(lenth+1, sizeof(char));
         int path_size = strlen(t_name);
         for (int i = 0; i < lenth; i++) {
             t_name[i] = fullseeddir[i+start];
@@ -1712,7 +1712,7 @@ int SETSMmainfunction(TransParam *return_param, char* _filename, ARGINFO args, c
                 printf("seed fff %d\n",proinfo->pre_DEMtif);
                 if(SetupParam(proinfo,&NumOfIAparam, &pre_DEM_level, &DEM_level,&proinfo->pre_DEMtif,&check_tile_array ))
                 {
-                    uint8 pyramid_step;
+                    uint8 pyramid_step = 1;
                     uint8 Template_size = 15;
                     uint16 buffer_area  = 400;
                     
@@ -2477,7 +2477,7 @@ int Matching_SETSM(ProInfo *proinfo,uint8 pyramid_step, uint8 Template_size, uin
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 #endif
     int final_iteration = -1;
-    bool lower_level_match;
+    bool lower_level_match = false;
     int row,col;
     int* RA_count = (int*)calloc(sizeof(int),proinfo->number_of_images);
 
@@ -2839,7 +2839,7 @@ int Matching_SETSM(ProInfo *proinfo,uint8 pyramid_step, uint8 Template_size, uin
                         double MPP_simgle_image;
                         double MPP_stereo_angle;
                         
-                        uint8 iteration;
+                        uint8 iteration = 0;
 
                         D2DPOINT *Startpos = (D2DPOINT*)calloc(proinfo->number_of_images, sizeof(D2DPOINT));
                         D2DPOINT *BStartpos= (D2DPOINT*)calloc(proinfo->number_of_images, sizeof(D2DPOINT));
@@ -2953,8 +2953,8 @@ int Matching_SETSM(ProInfo *proinfo,uint8 pyramid_step, uint8 Template_size, uin
                         
                         fprintf(fid_header, "%d\t%d\t%d\t%f\t%f\t%f\t%d\t%d\n", row, col, level, subBoundary[0], subBoundary[1], grid_resolution, Size_Grid2D.width,Size_Grid2D.height);
 
-                        double left_mag_var, left_mag_avg, right_mag_var, right_mag_avg;
-                        double left_mag_var_B, left_mag_avg_B, right_mag_var_B, right_mag_avg_B;
+                        double left_mag_var = 0, left_mag_avg = 0, right_mag_var = 0, right_mag_avg = 0;
+                        double left_mag_var_B = 0, left_mag_avg_B = 0, right_mag_var_B = 0, right_mag_avg_B = 0;
                         
                         printf("load subimages\n");
                         
@@ -3103,10 +3103,10 @@ int Matching_SETSM(ProInfo *proinfo,uint8 pyramid_step, uint8 Template_size, uin
                             char filename_tri[500];
                             char v_temp_path[500];
                                 
-                            int count_results[2];
+                            int count_results[2] = {0, 0};
                             int count_results_anchor[2];
-                            int count_MPs;
-                            int count_blunder;
+                            int count_MPs = 0;
+                            int count_blunder = 0;
                             bool update_flag = false;
                             bool check_ortho_cal = false;
                                 
@@ -7266,18 +7266,18 @@ void OpenXMLFile_orientation(char* _filename, ImageInfo *Iinfo)
     char temp_str[1000];
     char linestr[1000];
     char linestr1[1000];
-    char imagetime[1000];
-    char SatID[1000];
+    char imagetime[1000] = {0};
+    char SatID[1000] = {0};
     
     int i;
-    char* pos1;
-    char* pos2;
+    char* pos1 = NULL;
+    char* pos2 = NULL;
     char* token = NULL;
     char* token1 = NULL;
     char direction[100];
     
     double dx, dy;
-    double MSUNAz, MSUNEl, MSATAz, MSATEl, MIntrackangle, MCrosstrackangle, MOffnadirangle, Cloud;
+    double MSUNAz = 0, MSUNEl = 0, MSATAz = 0, MSATEl = 0, MIntrackangle = 0, MCrosstrackangle = 0, MOffnadirangle = 0, Cloud = 0;
     double UL[3], UR[3], LR[3], LL[3];
     double angle;
     

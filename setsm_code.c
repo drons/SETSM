@@ -3029,7 +3029,7 @@ int Matching_SETSM(ProInfo *proinfo,uint8 pyramid_step, uint8 Template_size, uin
                         int max_iteration = 9;
                         
                         NCCresult *nccresult;
-                        nccresult = (NCCresult*)calloc(sizeof(NCCresult),Size_Grid2D.width*Size_Grid2D.height);
+                        nccresult = (NCCresult*)calloc(Size_Grid2D.width*Size_Grid2D.height, sizeof(NCCresult));
                         
                         VOXEL **grid_voxel;
                         

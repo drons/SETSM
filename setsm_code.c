@@ -4919,10 +4919,15 @@ bool SetupParam(ProInfo *info,uint8 *NumOfIAparam, uint8 *pre_DEM_level, uint8 *
         printf("dem filename %s\n",info->priori_DEM_tif);
         pFile_DEM   = fopen(info->priori_DEM_tif,"r");
         if(pFile_DEM)
+        {
             *pre_DEMtif = true;
+            fclose(pFile_DEM);
+        }
         else
+        {
             *pre_DEMtif = false;
-        fclose(pFile_DEM);
+        }
+
     }
     
     printf("seed flag %d\n",*pre_DEMtif);
@@ -7256,8 +7261,6 @@ double** OpenXMLFile(ProInfo *proinfo, int ImageID, double* gsd_r, double* gsd_c
             out[1][2]               = out[1][3];
             out[1][3]               = aa;
             
-            fclose(pFile);
-            
             if(pos1)
                 pos1 = NULL;
             if(pos2)
@@ -7288,7 +7291,9 @@ double** OpenXMLFile(ProInfo *proinfo, int ImageID, double* gsd_r, double* gsd_c
             //printf("Rotation %f\t%f\t%f\n",proinfo->frameinfo.Photoinfo[ImageID].m_Rm.m21,proinfo->frameinfo.Photoinfo[ImageID].m_Rm.m22,proinfo->frameinfo.Photoinfo[ImageID].m_Rm.m23);
             //printf("Rotation %f\t%f\t%f\n",proinfo->frameinfo.Photoinfo[ImageID].m_Rm.m31,proinfo->frameinfo.Photoinfo[ImageID].m_Rm.m32,proinfo->frameinfo.Photoinfo[ImageID].m_Rm.m33);
         }
+        fclose(pFile);
     }
+
     return out;
 }
 
@@ -8704,8 +8709,8 @@ uint16* LoadPyramidImages(char *save_path,char *subsetfile, CSize data_size, uin
     {
         out         = (uint16*)malloc(sizeof(uint16)*data_size.height*data_size.width);
         fread(out,sizeof(uint16),data_size.height*data_size.width,pFile);
+        fclose(pFile);
     }
-    fclose(pFile);
     return out;
 }
 
@@ -8724,8 +8729,8 @@ uint8* LoadPyramidOriImages(char *save_path,char *subsetfile, CSize data_size, u
     {
         out     = (uint8*)malloc(sizeof(uint8)*data_size.height*data_size.width);
         fread(out,sizeof(uint8),data_size.height*data_size.width,pFile);
+        fclose(pFile);
     }
-    fclose(pFile);
 
     return out;
 }
@@ -8746,9 +8751,8 @@ uint16* LoadPyramidMagImages(char *save_path,char *subsetfile, CSize data_size, 
     {
         out     = (uint16*)malloc(sizeof(uint16)*data_size.height*data_size.width);
         fread(out,sizeof(uint16),data_size.height*data_size.width,pFile);
+        fclose(pFile);
     }
-    fclose(pFile);
-    
     
     double sum2 = 0;
     double sum = 0;
@@ -14671,9 +14675,8 @@ int DecisionMPs(ProInfo *proinfo,bool flag_blunder,int count_MPs_input, double* 
                 fclose(pfile);
             }
             free(ptslists);
-
+            fclose(survey);
         }
-        fclose(survey);
         
     }
     else
@@ -20728,7 +20731,7 @@ bool SetOrthoBoundary_ortho(CSize *Imagesize, double *Boundary,
     t_maxX      = max(max(max(XY[0].m_X,XY[1].m_X),XY[2].m_X),XY[3].m_X);
     t_minY      = min(min(min(XY[0].m_Y,XY[1].m_Y),XY[2].m_Y),XY[3].m_Y);
     t_maxY      = max(max(max(XY[0].m_Y,XY[1].m_Y),XY[2].m_Y),XY[3].m_Y);
-    
+
     double ImageBoundary[4];
     ImageBoundary[0]    = floor(t_minX)-1;
     ImageBoundary[1]    = floor(t_minY)-1;

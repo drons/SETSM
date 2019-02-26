@@ -20732,6 +20732,8 @@ bool SetOrthoBoundary_ortho(CSize *Imagesize, double *Boundary,
     t_minY      = min(min(min(XY[0].m_Y,XY[1].m_Y),XY[2].m_Y),XY[3].m_Y);
     t_maxY      = max(max(max(XY[0].m_Y,XY[1].m_Y),XY[2].m_Y),XY[3].m_Y);
 
+    free(XY);
+
     double ImageBoundary[4];
     ImageBoundary[0]    = floor(t_minX)-1;
     ImageBoundary[1]    = floor(t_minY)-1;

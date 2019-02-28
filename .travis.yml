@@ -8,10 +8,29 @@ matrix:
   include:
     - env:
         - BUILD_NAME=NO_MPI
-        - TARGET=setsm
+      script:
+        - make -f Makefile.gcc -j2 setsm
     - env:
         - BUILD_NAME=MPI
-        - TARGET=setsm_mpi
+      script:
+        - make -f Makefile.gcc -j2 setsm_mpi
+    - env:
+        - BUILD_NAME=PVS
+      before_script:
+        - mkdir pvs
+        - wget -q -O - http://files.viva64.com/etc/pubkey.txt | sudo apt-key add -
+        - sudo wget -O /etc/apt/sources.list.d/viva64.list http://files.viva64.com/etc/viva64.list
+        - echo -e "${PVS_KEY}" > ./pvs/free.lic
+        - echo -e "errors-off=V112 V113 V128 V203 V547 V560 V576 V763\n" > ./pvs/analyze.cfg
+        - sudo apt-get update -y --allow-unauthenticated
+        - sudo apt-get install -y --allow-unauthenticated pvs-studio
+      script:
+        - pvs-studio-analyzer trace -- make -f Makefile.gcc -j2 setsm
+        - pvs-studio --version
+        - pvs-studio-analyzer analyze --cfg ./pvs/analyze.cfg -l ./pvs/free.lic -o ./pvs-studio-analyzer.out.log -j2
+        - plog-converter -a "GA:1,2" -t errorfile -e -o ./pvs-error-list.txt ./pvs-studio-analyzer.out.log
+        - cat ./pvs-error-list.txt
+
 addons:
   apt:
     packages:
@@ -19,9 +38,8 @@ addons:
     - libtiff5-dev
     - libgeotiff-dev
     - libopenmpi-dev
+    - strace
+    - wget
 
-before_script:
-  - gcc --version
-script:
-  - make -f Makefile.gcc -j2 ${TARGET}
+
 

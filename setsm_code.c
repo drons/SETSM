@@ -64,7 +64,6 @@ int main(int argc,char *argv[])
     ARGINFO args;
     
     args.check_sensor_type = 1;
-    args.number_of_images = 2;
     args.check_arg = 0;
     args.check_DEM_space = false;
     args.check_Threads_num = false;
@@ -1374,7 +1373,6 @@ char* SetOutpathName(char *_path)
         int end = full_size;
         int lenth = end  - start+1;
         t_name = (char*)calloc(lenth+1, sizeof(char));
-        int path_size = strlen(t_name);
         for (int i = 0; i < lenth; i++) {
             t_name[i] = fullseeddir[i+start];
         }
@@ -1498,7 +1496,6 @@ int SETSMmainfunction(TransParam *return_param, char* _filename, ARGINFO args, c
             double *Image_gsd_c = (double*)calloc(sizeof(double),proinfo->number_of_images);
             double *Image_gsd = (double*)calloc(sizeof(double),proinfo->number_of_images);
             
-            ImageGSD *GSD_image = (ImageGSD*)calloc(sizeof(ImageGSD),proinfo->number_of_images);
             BandInfo *leftright_band = (BandInfo*)calloc(sizeof(BandInfo),proinfo->number_of_images);
             
             ImageGSD GSD_image1;
@@ -2092,9 +2089,6 @@ int SETSMmainfunction(TransParam *return_param, char* _filename, ARGINFO args, c
 
                         SetTiles(proinfo,proinfo->IsSP,proinfo->IsRR, Boundary, Res, tile_size, proinfo->pre_DEMtif, &pyramid_step, &buffer_area, 
                              &iter_row_start, &iter_row_end, &t_col_start, &t_col_end, &subX, &subY);   
-
-                        long int* count_matched_pts = (long int*)calloc(sizeof(long int),(iter_row_end - iter_row_start + 1)*(t_col_end - t_col_start + 1));
-                        
                         total_count         = 0;
 
                         if (args.check_tiles_SR)
@@ -2279,6 +2273,7 @@ int SETSMmainfunction(TransParam *return_param, char* _filename, ARGINFO args, c
                                 
                                 pFile_DEM = fopen(str_DEMfile,"r");
                                 printf("check exist %s %d\n",str_DEMfile,pFile_DEM);
+                                fclose(pFile_DEM);
                                 final_iteration = 3;
                                 //if(!pFile_DEM)
                                 {
@@ -2334,6 +2329,8 @@ int SETSMmainfunction(TransParam *return_param, char* _filename, ARGINFO args, c
                             
                             pFile_DEM = fopen(str_DEMfile,"r");
                             printf("check exist %s %d\n",str_DEMfile,pFile_DEM);
+                            if(pFile_DEM)
+                                fclose(pFile_DEM);
                             final_iteration = 3;
                             //if(!pFile_DEM)
                             {
@@ -2390,8 +2387,6 @@ int SETSMmainfunction(TransParam *return_param, char* _filename, ARGINFO args, c
                         fprintf(pMetafile,"Stereo_pair_convergence_angle=%f\n",image_info[0].convergence_angle);
                         fprintf(pMetafile,"Stereo_pair_expected_height_accuracy=%f\n",MPP_stereo_angle);
                         fclose(pMetafile);
-                        
-                        free(count_matched_pts);
                     } // if (!RA_only)
                     
                 }
@@ -2838,7 +2833,7 @@ int Matching_SETSM(ProInfo *proinfo,uint8 pyramid_step, uint8 Template_size, uin
                         
                         double Th_roh, Th_roh_min, Th_roh_start, Th_roh_next;
                         double minH_mps, maxH_mps;
-                        double minH_grid, maxH_grid;
+                        double minH_grid = 0, maxH_grid = 0;
                         double MPP;
                         double MPP_simgle_image;
                         double MPP_stereo_angle;
@@ -2855,10 +2850,10 @@ int Matching_SETSM(ProInfo *proinfo,uint8 pyramid_step, uint8 Template_size, uin
                         uint16 **SubMagImages_B = (uint16**)calloc(proinfo->number_of_images, sizeof(uint16*));
                         
                         
-                        D2DPOINT *Startpos_next;
-                        uint16 **SubImages_next;
-                        uint8  **SubOriImages_next;
-                        uint16 **SubMagImages_next;
+                        D2DPOINT *Startpos_next = NULL;
+                        uint16 **SubImages_next = NULL;
+                        uint8  **SubOriImages_next = NULL;
+                        uint16 **SubMagImages_next = NULL;
                         if(level > Py_combined_level)
                         {
                             Startpos_next = (D2DPOINT*)calloc(proinfo->number_of_images, sizeof(D2DPOINT));
@@ -3035,7 +3030,7 @@ int Matching_SETSM(ProInfo *proinfo,uint8 pyramid_step, uint8 Template_size, uin
                         NCCresult *nccresult;
                         nccresult = (NCCresult*)calloc(Size_Grid2D.width*Size_Grid2D.height, sizeof(NCCresult));
                         
-                        VOXEL **grid_voxel;
+                        VOXEL **grid_voxel = NULL;
                         
                         double height_step = GetHeightStep(level,Image_res[0]);
                         
@@ -4256,7 +4251,7 @@ int Matching_SETSM(ProInfo *proinfo,uint8 pyramid_step, uint8 Template_size, uin
     }
     
     free(iterations);
-    if(proinfo->IsRA && RA_count > 0)
+    if(proinfo->IsRA)
     {
         for(int ti = 0 ; ti < proinfo->number_of_images ; ti++)
         {
@@ -4271,10 +4266,8 @@ int Matching_SETSM(ProInfo *proinfo,uint8 pyramid_step, uint8 Template_size, uin
     MPI_Bcast(Imageparams, 2, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 #endif
     for(int ti = 0 ; ti < proinfo->number_of_images ; ti++)
-        printf("Num of RAs = %d\tRA param = %f\t%f\n",RA_count,Imageparams[ti][0],Imageparams[ti][1]);
-
+        printf("Num of RAs = %d\tRA param = %f\t%f\n",RA_count[i],Imageparams[ti][0],Imageparams[ti][1]);
     free(RA_count);
-
     return final_iteration;
 }
 
@@ -4575,7 +4568,10 @@ bool OpenProject(char* _filename, ProInfo *info, ARGINFO args)
         
             FILE *temp_ptif = fopen(info->Imagefilename[ti],"r");
             if(temp_ptif)
+            {
                 printf("image%d load completed!\n",ti);
+                fclose(temp_ptif);
+            }
             else
             {
                 printf("image%d load faied. Please check filename!!\n",ti);
@@ -4589,14 +4585,20 @@ bool OpenProject(char* _filename, ProInfo *info, ARGINFO args)
             temp_pFile           = fopen(info->RPCfilename[ti],"r");
             //printf("xml file %s\n",info->LeftRPCfilename);
             if(temp_pFile)
+            {
                 printf("image%d xml load completed!\n",ti);
+                fclose(temp_pFile);
+            }
             else
             {
                 sprintf(info->RPCfilename[ti],"%s.XML",tmp_chr);
                 //printf("xml file %s\n",info->LeftRPCfilename);
                 temp_pFile           = fopen(info->RPCfilename[ti],"r");
                 if(temp_pFile)
+                {
                     printf("image%d XML load completed!\n",ti);
+                    fclose(temp_pFile);
+                }
                 else
                 {
                     printf("image%d xml/XML load failed!\n",ti);
@@ -6826,9 +6828,9 @@ double** OpenXMLFile(ProInfo *proinfo, int ImageID, double* gsd_r, double* gsd_c
         if(proinfo->check_sensor_type == 1) //RPCs info
         {
             out = (double**)calloc(7, sizeof(double*));
-            out[0] = (double*)calloc(5, sizeof(double*));
-            out[1] = (double*)calloc(5, sizeof(double*));
-            out[6] = (double*)calloc(2, sizeof(double*));
+            out[0] = (double*)calloc(5, sizeof(double));
+            out[1] = (double*)calloc(5, sizeof(double));
+            out[6] = (double*)calloc(2, sizeof(double));
             
             while(!feof(pFile))
             {
@@ -17961,11 +17963,11 @@ double MergeTiles(ProInfo *info, int iter_row_start, int t_col_start, int iter_r
                                     long index = (long)(t_row*DEM_size.width + t_col + 0.01);
                                     
                                     float DEM_value;
-                                    DEM_value = temp_height[(long)(iter_row*col_size + iter_col)];
+                                    DEM_value = temp_height[((long)iter_row)*((long)col_size) + iter_col];
                                     //fscanf(p_hvfile,"%lf\t",&DEM_value);
                                     
                                     float ortho_value;
-                                    ortho_value = temp_ncc[(long)(iter_row*col_size + iter_col)];
+                                    ortho_value = temp_ncc[((long)iter_row)*((long)col_size) + iter_col];
                                     //fscanf(p_orthofile,"%lf\t",&ortho_value);
                                     
                                     if(index >= 0 && index < (long)DEM_size.width*(long)DEM_size.height &&
@@ -18669,7 +18671,6 @@ void NNA_M(bool check_Matchtag,TransParam _param, char *save_path, char* Outputp
         iter_check = 0;
         check_size = 0;
         max_total_iteration = 3;
-        total_iteration;
         th_rate = 0.6;
         
         for(total_iteration = 1  ; total_iteration <= max_total_iteration ; total_iteration++)
@@ -20162,7 +20163,7 @@ D2DPOINT* GetObjectToImageRPC_ortho(double **_rpc, uint8 _numofparam, double *_i
 
 uint16 *Readtiff_ortho(char *filename, CSize Imagesize, int *cols, int *rows, CSize *data_size)
 {
-    uint16 *out;
+    uint16 *out = NULL;
     FILE *bin;
     int check_ftype = 1; // 1 = tif, 2 = bin
     TIFF *tif = NULL;
@@ -21971,7 +21972,6 @@ void GMA_double_Tran(GMA_double *a, GMA_double *out)
     {
         for(cnt2=0;cnt2<a->ncols;cnt2++)
         {
-            out->val[cnt2][cnt1] = 0;
             out->val[cnt2][cnt1] = a->val[cnt1][cnt2];
         }
     }

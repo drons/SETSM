@@ -1833,6 +1833,7 @@ int SETSMmainfunction(TransParam *return_param, char* _filename, ARGINFO args, c
                             full_size       = strlen(args.seedDEMfilename);
                             printf("fullseeddir %s\tdir_size %d\n",fullseeddir,dir_size);
                             printf("lastSlash %s\tfull_size %d\n",lastSlash,full_size);
+                            free(lastSlash);
                             char seeddir[500];
                             for(i=0;i<dir_size-4;i++)
                                 seeddir[i] = fullseeddir[i];
@@ -2177,6 +2178,7 @@ int SETSMmainfunction(TransParam *return_param, char* _filename, ARGINFO args, c
                                         max_row = row;
                                         if(max_col < col)
                                         max_col = col;
+                                        fclose(pcheckFile);
                                     }
                                 }
                             }
@@ -2556,6 +2558,8 @@ int Matching_SETSM(ProInfo *proinfo,uint8 pyramid_step, uint8 Template_size, uin
             pcheckFile = fopen(check_file,"r");
             if(!pcheckFile)
                 check_cal = true;
+            else
+                fclose(pcheckFile);
         }
 
         if(check_cal)
@@ -4443,7 +4447,10 @@ bool OpenProject(char* _filename, ProInfo *info, ARGINFO args)
                         
                         FILE *temp_ptif = fopen(info->Imagefilename[count_images],"r");
                         if(temp_ptif)
+                        {
                             printf("image %d load completed!\n",count_images);
+                            fclose(temp_ptif);
+                        }
                         else
                         {
                             printf("image %d load faied. Please check filename!!\n",count_images);
@@ -4457,14 +4464,20 @@ bool OpenProject(char* _filename, ProInfo *info, ARGINFO args)
                         temp_pFile           = fopen(info->RPCfilename[count_images],"r");
                         //printf("xml file %s\n",info->LeftRPCfilename);
                         if(temp_pFile)
+                        {
                             printf("image %d xml load completed!\n",count_images);
+                            fclose(temp_pFile);
+                        }
                         else
                         {
                             sprintf(info->RPCfilename[count_images],"%s.XML",tmp_chr);
                             //printf("xml file %s\n",info->LeftRPCfilename);
                             temp_pFile           = fopen(info->RPCfilename[count_images],"r");
                             if(temp_pFile)
+                            {
                                 printf("image %d XML load completed!\n",count_images);
+                                fclose(temp_pFile);
+                            }
                             else
                             {
                                 printf("image %d xml/XML load failed!\n",count_images);
@@ -5384,7 +5397,7 @@ D2DPOINT *SetGrids(bool *dem_update_flag, bool flag_start, int level, int final_
 
 UGRID *SetGrid3PT(ProInfo *proinfo,TransParam param, bool dem_update_flag, bool flag_start, CSize Size_Grid2D, double Th_roh, int level, double *minmaxHeight,double *subBoundary,double py_resolution,char* metafilename)
 {
-    UGRID *GridPT3;
+    UGRID *GridPT3 = NULL;
     int total_grid_counts, i;
 
     if(!flag_start)
@@ -5661,7 +5674,7 @@ bool GetsubareaImage(ProInfo *proinfo,int ImageID,TransParam transparam, uint8 N
 
 uint16 *Readtiff(char *filename, CSize *Imagesize, int *cols, int *rows, CSize *data_size, bool check_checktiff)
 {
-    uint16 *out;
+    uint16 *out = NULL;
     FILE *bin;
     int check_ftype = 1; // 1 = tif, 2 = bin 
     TIFF *tif = NULL;
@@ -5876,7 +5889,7 @@ uint16 *Readtiff(char *filename, CSize *Imagesize, int *cols, int *rows, CSize *
 
 float *Readtiff_DEM(char *filename, CSize *Imagesize, int *cols, int *rows, CSize *data_size)
 {
-    float *out;
+    float *out = NULL;
     FILE *bin;
     int check_ftype = 1; // 1 = tif, 2 = bin 
     TIFF *tif = NULL;
@@ -6161,7 +6174,7 @@ float *Readtiff_DEM(char *filename, CSize *Imagesize, int *cols, int *rows, CSiz
 
 unsigned char *Readtiff_BYTE(char *filename, CSize *Imagesize, int *cols, int *rows, CSize *data_size)
 {
-    unsigned char *out;
+    unsigned char *out = NULL;
     FILE *bin;
     int check_ftype = 1; // 1 = tif, 2 = bin
     TIFF *tif = NULL;
@@ -7109,7 +7122,7 @@ double** OpenXMLFile(ProInfo *proinfo, int ImageID, double* gsd_r, double* gsd_c
 
 double** OpenXMLFile_Pleiades(char* _filename)
 {
-    double** out;
+    double** out = NULL;
     
     FILE *pFile;
     char temp_str[1000];
@@ -18025,7 +18038,7 @@ void NNA_M(bool check_Matchtag,TransParam _param, char *save_path, char* Outputp
     int interval_row = 20;
     int buffer_row   = 5;
     int t_ndata;
-    int ndim,ndim1,ndata;
+    int ndim,ndim1,ndata = 0;
     long total_search_count = 0;
     long total_mt_count = 0;
     long total_check_count = 0;
@@ -19280,7 +19293,7 @@ void orthogeneration(TransParam _param, ARGINFO args, char *ImageFilename, char 
     double OrthoGridFactor;
     double resolution[3];
     int impyramid_step;
-    double** RPCs;
+    double** RPCs = NULL;
     double row_grid_size, col_grid_size;
     bool Hemisphere;
     double DEM_minX, DEM_maxY;

@@ -5696,6 +5696,11 @@ uint16 *Readtiff(char *filename, CSize *Imagesize, int *cols, int *rows, CSize *
         bin  = fopen(filename,"rb");
         check_ftype = 2;
     }
+	else
+	{
+		printf("Unknown file type %s", filename);
+		return NULL;
+	}
     
     if(check_ftype == 1 && tif)
     {
@@ -5884,7 +5889,11 @@ uint16 *Readtiff(char *filename, CSize *Imagesize, int *cols, int *rows, CSize *
         }
         fclose(bin);
     }
-    
+	else
+	{
+		printf("Unknown file format %s", filename);
+		return NULL;
+	}
 
     return out;
 }

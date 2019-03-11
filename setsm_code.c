@@ -74,6 +74,8 @@ char *dirname(char *path);
 #define min(a, b)  (((a) < (b)) ? (a) : (b))
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
 
+#define MAX_HEIGHT_STEP 3.0
+
 int main(int argc,char *argv[])
 {
     setbuf(stdout, NULL);
@@ -9209,8 +9211,8 @@ double GetHeightStep(int Pyramid_step, double im_resolution)
     tt2 = floor(tt1 + 0.1);
     HS = tt2/1000.0;
     
-    if(HS > 3)
-        HS = 3;
+    if(HS > MAX_HEIGHT_STEP)
+        HS = MAX_HEIGHT_STEP;
     
     return HS;
 }
@@ -9421,7 +9423,6 @@ int VerticalLineLocus(VOXEL **grid_voxel, ProInfo *proinfo, NCCresult* nccresult
     
     double subBoundary[4];
 
-    double h_divide;
     double height_step;
     
     D2DPOINT temp_p1, temp_p2;
@@ -9471,6 +9472,8 @@ int VerticalLineLocus(VOXEL **grid_voxel, ProInfo *proinfo, NCCresult* nccresult
     if(check_combined_WNCC)
         im_resolution_next = im_resolution*pow(2,Pyramid_step-1);
     
+    height_step = GetHeightStep(Pyramid_step, im_resolution);
+
     im_resolution = im_resolution*pow(2,Pyramid_step);
     
     
@@ -9698,24 +9701,6 @@ int VerticalLineLocus(VOXEL **grid_voxel, ProInfo *proinfo, NCCresult* nccresult
     ncc_beta = 1.0 - ncc_alpha;
     
     printf("ncc_alpha ncc_beta %f %f\n",ncc_alpha,ncc_beta);
-    
-    if(Pyramid_step >= 3)
-        h_divide = 2;
-    else if(Pyramid_step == 2)
-    {
-        h_divide = 2;
-    }
-    else if(Pyramid_step == 1)
-        h_divide = 3;
-    else {
-        h_divide = 3;
-    }
-    
-    height_step = (double)(im_resolution/h_divide);
-    
-    if(height_step > 3)
-        height_step = 3;
-    
     printf("height step %f\n",height_step);
 
     int sum_data2 = 0;
@@ -9763,10 +9748,6 @@ int VerticalLineLocus(VOXEL **grid_voxel, ProInfo *proinfo, NCCresult* nccresult
             double th_height = 1000;
             if(proinfo->DEM_resolution <= 4)
                 th_height = 1000;
-            
-            if(GridPT3[pt_index].Matched_flag == 0)
-                h_divide = 2;
-            
             
             NumOfHeights = (int)((end_H -  start_H)/height_step);
             
@@ -12563,9 +12544,6 @@ bool VerticalLineLocus_blunder(ProInfo *proinfo,double* nccresult, double* INCC,
     }
     
     double subBoundary[4];
-    
-    double h_divide;
-    double height_step;
     
     D2DPOINT temp_p1, temp_p2;
     D3DPOINT temp_GrP;

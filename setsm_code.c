@@ -52,7 +52,7 @@ char *dirname(char *path);
 #define min(a, b)  (((a) < (b)) ? (a) : (b))
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
 
-#define MAX_HEIGHT_STEP 3.0
+#define MAX_HEIGHT_STEP 300.0
 
 int main(int argc,char *argv[])
 {
